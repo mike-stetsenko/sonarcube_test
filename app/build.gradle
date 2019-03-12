@@ -4,61 +4,7 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
-apply plugin: 'jacoco'
-
-jacoco {
-    toolVersion = "0.8.3"
-    reportsDir = file("$buildDir/reports")
-}
-
-task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) { //we use "debug" build type for test coverage (can be other)
-    group = "reporting"
-    description = "Generate unified Jacoco code coverage report"
-
-    reports {
-        xml.enabled = true
-        html.enabled = true
-        csv.enabled = false
-        xml.destination = "$buildDir/reports/jacocoTestReport.xml"
-        html.destination = "$buildDir/reports/jacoco"
-        csv.destination = "$buildDir/reports/jacocoTestReport.csv"
-    }
-
-    def fileFilter = [
-            '**/*Test*.*',
-            '**/AutoValue_*.*',
-            '**/*JavascriptBridge.class',
-            '**/R.class',
-            '**/R$*.class',
-            '**/Manifest*.*',
-            'android/**/*.*',
-            '**/BuildConfig.*',
-            '**/*$ViewBinder*.*',
-            '**/*$ViewInjector*.*',
-            '**/Lambda$*.class',
-            '**/Lambda.class',
-            '**/*Lambda.class',
-            '**/*Lambda*.class',
-            '**/*$InjectAdapter.class',
-            '**/*$ModuleAdapter.class',
-            '**/*$ViewInjector*.class',
-            '**/*_MembersInjector.class', //Dagger2 generated code
-            '*/*_MembersInjector*.*', //Dagger2 generated code
-            '**/*_*Factory*.*', //Dagger2 generated code
-            '*/*Component*.*', //Dagger2 generated code
-            '**/*Module*.*' //Dagger2 generated code
-    ]
-    def javaDebugTree = fileTree(dir: "$buildDir/intermediates/javac/debug", excludes: fileFilter) //we use "debug" build type for test coverage (can be other)
-    def kotlinDebugTree = fileTree(dir: "$buildDir/tmp/kotlin-classes/debug", excludes: fileFilter)
-    def mainSrc = "${project.projectDir}/src/main/java"
-
-    sourceDirectories = files([mainSrc])
-    classDirectories = files([javaDebugTree, kotlinDebugTree]) // we need to target both java and kotlin build folder
-    executionData = fileTree(dir: "$buildDir", includes: [
-            "jacoco/testDebugUnitTest.exec", //we use "debug" build type for test coverage (can be other)
-            "outputs/code-coverage/connected/*coverage.ec"
-    ])
-}
+apply from: "${rootProject.projectDir}/jacoco.gradle"
 
 android {
     compileSdkVersion 28
